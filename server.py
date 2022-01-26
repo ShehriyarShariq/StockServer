@@ -122,7 +122,8 @@ for order in notifyForOrders:
         "timestamp": SERVER_TIMESTAMP,
         "type": "milestone",
         "maxQty": order['quantity'],
-        "orderId": order['id']
+        "orderId": order['id'],
+        "status": "awaiting"
     })
 
     # insToken = orderObj['stock']['instrument_token']
