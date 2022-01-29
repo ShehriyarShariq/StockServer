@@ -10,7 +10,7 @@ import requests
 
 import pandas as pd
 
-CURRENT_DIRECTORY = os.getcwd()
+CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 if not firebase_admin._apps:
     cred = credentials.Certificate('{}/key.json'.format(CURRENT_DIRECTORY))
