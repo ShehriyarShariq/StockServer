@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore, messaging
 from firebase_admin.firestore import SERVER_TIMESTAMP
 
+import os
 import requests
 
 # import logging
@@ -9,8 +10,10 @@ import requests
 
 import pandas as pd
 
+CURRENT_DIRECTORY = os.getcwd()
+
 if not firebase_admin._apps:
-    cred = credentials.Certificate('./key.json')
+    cred = credentials.Certificate('{CURRENT_DIRECTORY}/key.json')
     firebase_admin.initialize_app(cred)
 
 firestore_db = firestore.client()
@@ -80,10 +83,6 @@ for order in checkFor:
 
     if stockCurrent > orderObj['targetPrice'] or stockCurrent < orderObj['stopLoss']:
         notifyForOrders.append(orderObj)
-    # if stockCurrent > orderObj['targetPrice']:
-    #     ordersAboveTarget.append(orderObj)
-    # elif stockCurrent < orderObj['stopLoss']:
-    #     ordersBelowStopLoss.append(orderObj)
     
 allCustomerTokens = {}
 
@@ -108,23 +107,27 @@ for order in notifyForOrders:
 
     messageBody = "{} {} {} Reached.".format(stockName, target if stockCurrent > target else stopLoss, "Target" if stockCurrent > target else "Stop-Loss")
     
-    message = messaging.Message(
-        notification=messaging.Notification(
-            title="{} Reached".format("Target" if stockCurrent > target else "Stop-Loss"),
-            body=messageBody
-        ),
-        token=customerToken,
-    )
-    response = messaging.send(message)
+    try:
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title="{} Reached".format("Target" if stockCurrent > target else "Stop-Loss"),
+                body=messageBody
+            ),
+            token=customerToken,
+        )
+        response = messaging.send(message)
 
-    firestore_db.collection(u'users').document(u'customers').collection(u'users').document(order['customerID']).collection(u'notifications').document().set({
-        "message": messageBody,
-        "timestamp": SERVER_TIMESTAMP,
-        "type": "milestone",
-        "maxQty": order['quantity'],
-        "orderId": order['id'],
-        "status": "awaiting"
-    })
+        firestore_db.collection(u'users').document(u'customers').collection(u'users').document(order['customerID']).collection(u'notifications').document().set({
+            "message": messageBody,
+            "timestamp": SERVER_TIMESTAMP,
+            "type": "milestone",
+            "maxQty": order['quantity'],
+            "orderId": order['id'],
+            "status": "awaiting"
+        })
+    except Exception as e:
+        print(e)
+        pass
 
     # insToken = orderObj['stock']['instrument_token']
 
