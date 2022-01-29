@@ -36,6 +36,7 @@ try:
 
     if stockLiveDataReq.ok:
         stockLiveData = stockLiveDataReq.json()
+        stockLiveData['lastUpdated'] = SERVER_TIMESTAMP
         firestore_db.collection(u'stocks').document(STOCK_ID).update(stockLiveData)
 except:
     pass
