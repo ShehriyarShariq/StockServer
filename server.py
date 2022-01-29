@@ -13,7 +13,7 @@ import pandas as pd
 CURRENT_DIRECTORY = os.getcwd()
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate('{CURRENT_DIRECTORY}/key.json')
+    cred = credentials.Certificate('{}/key.json'.format(CURRENT_DIRECTORY))
     firebase_admin.initialize_app(cred)
 
 firestore_db = firestore.client()
